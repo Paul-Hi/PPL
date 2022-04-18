@@ -3,7 +3,7 @@
 
 #include <string>
 
-// Unary Operators: ++ --
+// Unary Operators: ++ -- ! -
 // Binary Operators: + - * / % = < > ! , ; && || == <= >= !=.
 // Special Symbols: -> ( ) { } [ ] , ; . : :: ()
 
