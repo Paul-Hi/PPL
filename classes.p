@@ -1,0 +1,56 @@
+type foo =
+{
+    i32 a;
+    f32 b;
+pub:
+    static (i32 a, f32 b) -> foo new
+    {
+        return foo{ a: a, b: b };
+    }
+
+    () -> i32 get_a { return a; }
+    () -> f32 get_b { return b; }
+    () -> f32 get_3 { return 3.0; }
+};
+
+type bar extends foo =
+{
+    i32 c;
+pub:
+    static (i32 a, f32 b, i32 c) -> bar new
+    {
+        return bar{ a: a, b: b, c: c };
+    }
+    () -> i32 get_c { return c; }
+    () -> f32 get_3 { return 33.0; }
+) bar
+
+(bar b) -> () call_dump
+{
+    dump(b);
+}
+
+(foo f) -> () call_dump
+{
+    dump(f);
+}
+
+
+() -> i32 main
+{
+    foo a_foo = foo {0, 1};
+    dump(a_foo);
+
+    foo another_foo = foo::new(1, 2);
+    dump(another_foo.get_a());
+    dump(another_foo.get_b());
+
+    foo a_bar0 = bar {a: 2, b: 3, c: 4};
+    call_dump(a_bar0);
+    bar a_bar1 = bar {a: 2, b: 3, c: 4};
+    call_dump(a_bar1);
+    foo a_bar2 = bar::new(3, 4, 5);
+    bar a_bar3 = bar::new(3, 4, 5);
+
+    return 1;
+}
