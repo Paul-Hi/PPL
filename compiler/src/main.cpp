@@ -1,7 +1,7 @@
 #include "command_line_parser.hpp"
 #include "lexer.hpp"
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 
 #ifdef WIN32
@@ -76,34 +76,53 @@ int main(int argc, char** argv)
 
     std::cout << "  INPUT: " << input_file_name << "\n  OUTPUT: " << output_file_name << std::endl;
 
-    std::ifstream t(input_file_name);
+    std::ifstream file(input_file_name);
     std::stringstream buffer;
-    buffer << t.rdbuf();
+    buffer << file.rdbuf();
 
     lexer source_lexer;
 
     std::vector<token> tokens = source_lexer.parse(buffer.str());
 
-    int32_t current_line = 1;
-    int32_t indent = 0;
+    int32_t current_line         = 1;
+    int32_t indent               = 0;
+    static bool print_token_type = true;
     for (token t : tokens)
     {
-        if(t.type == token_type::r_brace) indent -= 4;
+        if (t.type == token_type::r_brace)
+            indent -= 4;
         if (t.line > current_line)
         {
             std::cout << std::endl;
             current_line = t.line;
-            for(int32_t i = 0; i < indent; ++i) std::cout << " ";
+            for (int32_t i = 0; i < indent; ++i)
+                std::cout << " ";
         }
-        if(t.type == token_type::comment) std::cout << "//";
-        std::cout << token_type_to_string(t.type) << "(" << t.text << ") ";
-        //std::cout << t.text << " ";
-        if(t.type == token_type::l_brace) indent += 4;
+        if (t.type == token_type::comment)
+            std::cout << "//";
+        if (print_token_type)
+        {
+            std::cout << token_type_to_string(t.type);
+            if (t.type == token_type::identifier || t.type == token_type::string_literal || t.type == token_type::integer_literal || t.type == token_type::floating_point_literal ||
+                t.type == token_type::comment)
+                std::cout << " \"" << t.text << "\" ";
+            else
+                std::cout << " ";
+        }
+        else
+        {
+            if (t.type == token_type::string_literal)
+                std::cout << "\"";
+            std::cout << t.text;
+            if (t.type == token_type::string_literal)
+                std::cout << "\"";
+            std::cout << " ";
+        }
+        if (t.type == token_type::l_brace)
+            indent += 4;
     }
 
     std::cin.get();
-
-    // TODO NEXT: Create git repo - commit lexer - continue with parser :D
 
     return 1;
 }

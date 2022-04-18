@@ -1,0 +1,140 @@
+
+// Parser
+
+program = declarations
+
+declarations = { variable_declaration | function_declaration }
+
+variable_declaration = type_name, identifier, { assign, arithmetic_expression }, semicolon
+
+function_declaration = unit | ( l_parentheses parameter_declarations r_parentheses ), transmutation_arrow,
+                        unit | typename, identifier, block
+
+parameter_declarations = parameter_declaration, { comma, parameter_declarations }
+
+parameter_declaration = type_name, identifier
+
+block = l_brace, { variable_declaration | statement }, r_brace
+
+
+
+statement = assign_statement | return_statement | if_statement | while_statement | function_call_statement
+
+assign_statement = l_value, assign, expression, semicolon
+
+return_statement = expression, semicolon
+
+if_statement = keyword_if, l_parentheses, conditional_expression, r_parentheses, block, { keyword_else, block }
+
+while_statement = keyword_while, l_parentheses, conditional_expression, r_parentheses, block
+
+function_call_statement = function_call, semicolon
+
+
+
+expression = arithmetic_expression | conditional_expression | string_expression
+
+arithmetic_expression = additive_expression
+
+additive_expression = multplicative_expression, { plus | minus, multplicative_expression }
+
+multplicative_expression = arithmetic_factor, { star | slash | percent , arithmetic_factor }
+
+conditional_expression = or_expression
+
+or_expression = and_expression, { logical_or, and_expression }
+
+and_expression = compare_expression, { logical_and, compare_expression }
+
+compare_expression = boolean_literal | ( l_parentheses, conditional_expression, r_parentheses ) |
+            ( expression, ( equal, not_equal, greather_then, greather_then_or_equal, less_then, less_then_or_equal), expression )
+
+string_expression = string_literal
+
+
+
+function_call = identifier, l_parentheses, { arguments }, r_parentheses
+
+arguments = argument, { arguments }
+
+argument = expression
+
+variable_access = identifier | array_access
+
+array_access = identifier, access_expressions
+
+access_expressions = access_expression, { access_expressions }
+
+access_expression = l_bracket, arithmetic_expression, r_bracket
+
+
+
+type_name = type_i32 | type_f32 | type_bool | type_str, { l_bracket, arithmetic_expression , r_bracket }
+
+lvalue = identifier | array_access
+
+arithmetic_factor = variable_access | function_call | arithmetic_literal |
+                    ( l_parentheses, arithmetic_expression, r_parentheses ) |
+                    ( l_parentheses, arithmetic_expression, r_parentheses, keyword_as, type_name )
+
+
+arithmetic_literal = integer_literal | floating_point_literal
+
+
+// Lexer
+
+type_i32        = 'i32'
+type_f32        = 'f32'
+type_bool       = 'bool'
+type_str        = 'str'
+keyword_true   = 'true'
+keyword_false   = 'false'
+keyword_as      = 'as'
+keyword_if      = 'if'
+keyword_else    = 'else'
+keyword_while   = 'while'
+keyword_return  = 'return'
+keyword_pub     = 'pub'
+keyword_static  = 'static'
+keyword_type    = 'type'
+keyword_extends = 'extends'
+function_dump   = 'dump'
+
+identifier             = {a-zA-Z_}-, {a-zA-Z0-9_}-
+integer_literal        = {0-9}-
+floating_point_literal = {0-9}, point, {0-9}-
+boolean_literal        = keyword_true | keyword_false
+string_literal         = ", { ? any char ? }-, "
+comment                = // until newline -> skip
+
+unit                   = '()'
+plus                   = '+'
+increment              = '++'
+minus                  = '-'
+decrement              = '--'
+star                   = '*'
+slash                  = '/'
+percent                = '%'
+assign                 = '='
+less_then              = '<'
+greather_then          = '>'
+exclamation_mark       = '!'
+logical_and            = '&&'
+logical_or             = '||'
+equal                  = '=='
+less_then_or_equal     = '<='
+greather_then_or_equal = '>='
+not_equal              = '!='
+transmutation_arrow    = '->'
+l_parentheses          = '('
+r_parentheses          = ')'
+l_brace                = '{'
+r_brace                = '}'
+l_bracket              = '['
+r_bracket              = ']'
+comma                  = ','
+semicolon              = ';'
+colon                  = ':'
+double_colon           = '::'
+point                  = '.'
+

@@ -4,8 +4,7 @@
 #include <string>
 
 // Unary Operators: ++ --
-// Binary Operators: + - * / % = < > ! , ; ^
-//                   && || & | == <= >= != << >> .
+// Binary Operators: + - * / % = < > ! , ; && || == <= >= !=.
 // Special Symbols: -> ( ) { } [ ] , ; . : :: ()
 
 enum token_type : uint16_t
@@ -28,17 +27,12 @@ enum token_type : uint16_t
     less_then,              // <
     greather_then,          // >
     exclamation_mark,       // !
-    circumflex,             // ^
     logical_and,            // &&
     logical_or,             // ||
-    ampersand,              // &
-    pipe,                   // |
     equal,                  // ==
     less_then_or_equal,     // <=
     greather_then_or_equal, // >=
     not_equal,              // !=
-    shift_left,             // <<
-    shift_right,            // >>
     transmutation_arrow,    // ->
     l_parentheses,          // (
     r_parentheses,          // )
@@ -52,6 +46,23 @@ enum token_type : uint16_t
     double_colon,           // ::
     point,                  // .
     comment,                // comment
+    // keyword tokens
+    type_i32,        // i32
+    type_f32,        // f32
+    type_bool,       // bool
+    type_str,        // str
+    keyword_true,    // true
+    keyword_false,   // false
+    keyword_as,      // as
+    keyword_if,      // if
+    keyword_else,    // else
+    keyword_while,   // while
+    keyword_return,  // return
+    keyword_pub,     // pub
+    keyword_static,  // static
+    keyword_type,    // type
+    keyword_extends, // extends
+    function_dump,   // dump
 };
 
 static std::string token_type_to_string(token_type type)
@@ -94,16 +105,10 @@ static std::string token_type_to_string(token_type type)
         return "greather_then";
     case token_type::exclamation_mark:
         return "exclamation_mark";
-    case token_type::circumflex:
-        return "circumflex";
     case token_type::logical_and:
         return "logical_and";
     case token_type::logical_or:
         return "logical_or";
-    case token_type::ampersand:
-        return "ampersand";
-    case token_type::pipe:
-        return "pipe";
     case token_type::equal:
         return "equal";
     case token_type::less_then_or_equal:
@@ -112,10 +117,6 @@ static std::string token_type_to_string(token_type type)
         return "greather_then_or_equal";
     case token_type::not_equal:
         return "not_equal";
-    case token_type::shift_left:
-        return "shift_left";
-    case token_type::shift_right:
-        return "shift_right";
     case token_type::transmutation_arrow:
         return "transmutation_arrow";
     case token_type::l_parentheses:
@@ -142,6 +143,40 @@ static std::string token_type_to_string(token_type type)
         return "point";
     case token_type::comment:
         return "comment";
+    case token_type::type_i32:
+        return "type_i32";
+    case token_type::type_f32:
+        return "type_f32";
+    case token_type::type_bool:
+        return "type_bool";
+    case token_type::type_str:
+        return "type_str";
+    case token_type::keyword_as:
+        return "keyword_as";
+    case token_type::keyword_true:
+        return "keyword_true";
+    case token_type::keyword_false:
+        return "keyword_false";
+    case token_type::keyword_if:
+        return "keyword_if";
+    case token_type::keyword_else:
+        return "keyword_else";
+    case token_type::keyword_while:
+        return "keyword_while";
+    case token_type::keyword_return:
+        return "keyword_return";
+    case token_type::keyword_pub:
+        return "keyword_pub";
+    case token_type::keyword_static:
+        return "keyword_static";
+    case token_type::keyword_type:
+        return "keyword_type";
+    case token_type::keyword_extends:
+        return "keyword_extends";
+    case token_type::function_dump:
+        return "function_dump";
+    default:
+        return "undefined";
     }
 }
 

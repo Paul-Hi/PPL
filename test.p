@@ -9,19 +9,44 @@
     return num;
 }
 
+i32[3] point3d;
+
 () -> i32 main
 {
-    i32 a0 = 4;
+    i32 a0 = 1;
     dump(a0);
-    i32 a_1 = a0;
-    dump(invert(a_1));
-    a_1 = a_1 + a0;
-    dump(a_1);
+    dump("a0 inverted: {}", invert(a0));
+
+    point3d[0] = a0;
+    point3d[1] = point3d[0] + 1;
+    point3d[2] = point3d[1] + 1;
 
     f32 _b = 1.5;
     dump(_b);
 
     str equation = "1 + 2 = 3!";
+
+    i32 result11 = 2 + 3 * 3;
+    i32 result15 = (2 + 3) * 3;
+    i32 result22 = (2 + (3 * 3)) * 2;
+
+    dump("should be 11, is {}", result11);
+    dump("should be 15, is {}", result15);
+    dump("should be 22, is {}", result22);
+
+    _b = result11 as f32 + 0.5;
+    dump(_b);
+
+    i32 i = 0;
+    while(i < 6)
+    {
+        dump(i++);
+    }
+
+    if(true)
+    {
+        dump(i == 6);
+    }
 
     return 1;
 }
