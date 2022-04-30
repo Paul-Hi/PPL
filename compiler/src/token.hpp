@@ -1,8 +1,8 @@
 #ifndef TOKEN_HPP
 #define TOKEN_HPP
 
-#include <string>
 #include <iostream>
+#include <string>
 
 // Unary Operators: ++ -- ! - +
 // Binary Operators: + - * / % = < > , ; && || == <= >= !=.
@@ -118,6 +118,7 @@ static int32_t infix_operator_precedence(token_type op)
     case token_type::slash:
     case token_type::percent:
         return 12;
+    case token_type::keyword_as:
     case token_type::point:
         return 15;
     case token_type::double_colon:
@@ -139,39 +140,25 @@ static int32_t infix_operator_associativity(token_type op)
     switch (op)
     {
     case token_type::plus:
-        return LR;
     case token_type::minus:
-        return LR;
     case token_type::star:
-        return LR;
     case token_type::slash:
-        return LR;
     case token_type::percent:
+    case token_type::less_then:
+    case token_type::greather_then:
+    case token_type::logical_and:
+    case token_type::logical_or:
+    case token_type::equal:
+    case token_type::less_then_or_equal:
+    case token_type::greather_then_or_equal:
+    case token_type::not_equal:
+    case token_type::comma:
+    case token_type::double_colon:
+    case token_type::point:
+    case token_type::keyword_as:
         return LR;
     case token_type::assign:
         return RL;
-    case token_type::less_then:
-        return LR;
-    case token_type::greather_then:
-        return LR;
-    case token_type::logical_and:
-        return LR;
-    case token_type::logical_or:
-        return LR;
-    case token_type::equal:
-        return LR;
-    case token_type::less_then_or_equal:
-        return LR;
-    case token_type::greather_then_or_equal:
-        return LR;
-    case token_type::not_equal:
-        return LR;
-    case token_type::comma:
-        return LR;
-    case token_type::double_colon:
-        return LR;
-    case token_type::point:
-        return LR;
     default:
         return -1;
     }

@@ -59,14 +59,14 @@ static std::string to_string(identifier_type id_type)
 };
 #undef op
 
-#define EXPRESSION_TYPE_ENUMERATION(op)                                                                      \
-    op(nop) op(str_lit) op(i32_lit) op(f32_lit) op(bool_lit) op(identifier)    /* atoms */                   \
-        op(neg) op(add) op(sub) op(mult) op(div) op(mod)                       /* arithmetic expressions */  \
-        op(eq) op(neq) op(lt) op(gt) op(lte) op(gte) op(lnot) op(land) op(lor) /* conditional expressions */ \
-        op(assign) op(ret) op(loop) op(function_call) op(array_access)         /* statements */              \
-        op(type_name) op(array_type_name) op(function_type_name)               /* type names */              \
-        op(declaration) op(compound)                                           /* blocks */                  \
-        op(address_of) op(deref)                                               /* internal pointer/adress stuff */
+#define EXPRESSION_TYPE_ENUMERATION(op)                                                                       \
+    op(nop) op(str_lit) op(i32_lit) op(f32_lit) op(bool_lit) op(identifier)     /* atoms */                   \
+        op(neg) op(add) op(sub) op(mult) op(div) op(mod)                        /* arithmetic expressions */  \
+        op(eq) op(neq) op(lt) op(gt) op(lte) op(gte) op(lnot) op(land) op(lor)  /* conditional expressions */ \
+        op(assign) op(ret) op(loop) op(cast) op(function_call) op(array_access) /* statements */              \
+        op(type_name) op(array_type_name) op(function_type_name)                /* type names */              \
+        op(declaration) op(compound)                                            /* blocks */                  \
+        op(address_of) op(deref)                                                /* internal pointer/adress stuff */
 
 #define op(x) x,
 enum class expression_type
@@ -116,6 +116,8 @@ static expression_type operator_token_type_to_expression_type(token_type op)
         return expression_type::function_call;
     case token_type::l_bracket:
         return expression_type::array_access;
+    case token_type::keyword_as:
+        return expression_type::cast;
     case token_type::double_colon:
     case token_type::point:
     default:
@@ -234,6 +236,8 @@ class expression : public ast_node
             return "return";
         case expression_type::loop:
             return "loop";
+        case expression_type::cast:
+            return "as";
         case expression_type::function_call:
             return "fcall";
         case expression_type::array_access:
@@ -245,7 +249,7 @@ class expression : public ast_node
         case expression_type::array_type_name:
             return "[]";
         case expression_type::function_type_name:
-            return "→";
+            return "=>";
         case expression_type::address_of:
             return "&";
         case expression_type::deref:

@@ -608,6 +608,12 @@ unique_ptr<expression> parser::parse_atom()
     case token_type::boolean_literal:
         pop_token();
         return std::move(std::make_unique<boolean_literal>(atom_token.position, atom_token.text == "true"));
+    case token_type::unit:
+    case token_type::type_i32:
+    case token_type::type_f32:
+    case token_type::type_bool:
+    case token_type::type_str:
+        return parse_type_name();
     default:
         create_error(atom_token.position, "Unexpected token " + to_string(atom_token.type));
         return nullptr;
