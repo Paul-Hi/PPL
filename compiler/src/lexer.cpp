@@ -7,8 +7,8 @@ lexer::lexer()
     predefined["f32"]     = token_type::type_f32;
     predefined["bool"]    = token_type::type_bool;
     predefined["str"]     = token_type::type_str;
-    predefined["true"]    = token_type::keyword_true;
-    predefined["false"]   = token_type::keyword_false;
+    predefined["true"]    = token_type::boolean_literal;
+    predefined["false"]   = token_type::boolean_literal;
     predefined["as"]      = token_type::keyword_as;
     predefined["if"]      = token_type::keyword_if;
     predefined["else"]    = token_type::keyword_else;
@@ -102,17 +102,17 @@ std::vector<token> lexer::parse(const std::string& source)
         case 'Y':
         case 'Z':
         case '_':
-            if (current.type != token_type::identifier)
+            if (current.type != token_type::token_identifier)
             {
                 if (current.type == token_type::string_literal || current.type == token_type::integer_literal || current.type == token_type::floating_point_literal ||
                     current.type == token_type::boolean_literal)
                 {
                     // continue and print more errors, if there are any
-                    std::cerr << "Unkown token \'" << *iter << "\' in " << current.text << " at (" << line << ", " << inline_offset << ")" << std::endl;
+                    std::cerr << "Lexer: Unknown character \'" << *iter << "\' in " << current.text << " at (" << line << ", " << inline_offset << ")" << std::endl;
                 }
                 end_token(current, token_list);
                 begin_token(current, line, inline_offset);
-                current.type = token_type::identifier;
+                current.type = token_type::token_identifier;
                 current.text.append(1, *iter);
                 scan_identifier(++iter, current);
                 end_token(current, token_list);
@@ -263,7 +263,7 @@ std::vector<token> lexer::parse(const std::string& source)
             else
             {
                 // continue and print more errors, if there are any
-                std::cerr << "Unkown token \'" << *iter << "\' in " << current.text << " at (" << line << ", " << inline_offset << ")" << std::endl;
+                std::cerr << "Lexer: Unknown character \'" << *iter << "\' in " << current.text << " at (" << line << ", " << inline_offset << ")" << std::endl;
             }
             end_token(current, token_list);
             break;
@@ -271,7 +271,7 @@ std::vector<token> lexer::parse(const std::string& source)
             end_token(current, token_list);
             begin_token(current, line, inline_offset);
             current.text.append(1, *iter);
-            if (*(iter + 1) == '&') // && check
+            if (*(iter + 1) == '|') // && check
             {
                 current.type = token_type::logical_or;
                 current.text.append(1, *(++iter));
@@ -279,7 +279,7 @@ std::vector<token> lexer::parse(const std::string& source)
             else
             {
                 // continue and print more errors, if there are any
-                std::cerr << "Unkown token \'" << *iter << "\' in " << current.text << " at (" << line << ", " << inline_offset << ")" << std::endl;
+                std::cerr << "Unknown character \'" << *iter << "\' in " << current.text << " at (" << line << ", " << inline_offset << ")" << std::endl;
             }
             end_token(current, token_list);
             break;
@@ -394,7 +394,7 @@ std::vector<token> lexer::parse(const std::string& source)
             break;
         default:
             // continue and print more errors, if there are any
-            std::cerr << "Unkown token \'" << *iter << "\' in " << current.text << " at (" << line << ", " << inline_offset << ")" << std::endl;
+            std::cerr << "Lexer: Unknown character \'" << *iter << "\' in " << current.text << " at (" << line << ", " << inline_offset << ")" << std::endl;
             break;
         }
         ++iter;
@@ -403,13 +403,16 @@ std::vector<token> lexer::parse(const std::string& source)
     std::cout << std::endl;
     std::cout << "Source Info: " << line + 1 << " lines, " << source.length() << " characters." << std::endl;
 
+    begin_token(current, line, inline_offset);
+    current.type = token_type::eof;
+    end_token(current, token_list);
+
     return token_list;
 }
 
 void lexer::begin_token(token& current, int32_t line, int32_t inline_offset)
 {
-    current.line          = line;
-    current.inline_offset = inline_offset;
+    current.position = source_code_position{ line, inline_offset };
 }
 
 void lexer::end_token(token& current, std::vector<token>& token_list)
@@ -419,10 +422,9 @@ void lexer::end_token(token& current, std::vector<token>& token_list)
         token_list.push_back(current);
     }
 
-    current.type = undefined;
+    current.type = token_type::undefined;
     current.text.erase();
-    current.line          = -1;
-    current.inline_offset = -1;
+    current.position = source_code_position{ -1, -1 };
 }
 
 void lexer::scan_identifier(std::string::const_iterator& iter, token& current)
@@ -521,7 +523,7 @@ void lexer::scan_number(std::string::const_iterator& iter, token& current, int32
         case '.':
             if (current.type == token_type::floating_point_literal)
             {
-                std::cerr << "Unkown token \'" << *iter << "\' in " << current.text << " at (" << line << ", " << inline_offset << ")" << std::endl;
+                std::cerr << "Lexer: Unknown character \'" << *iter << "\' in " << current.text << " at (" << line << ", " << inline_offset << ")" << std::endl;
             }
             else if (*(iter + 1) >= '0' && *(iter + 1) <= '9')
             {
@@ -530,7 +532,7 @@ void lexer::scan_number(std::string::const_iterator& iter, token& current, int32
             else
             {
                 // continue and print more errors, if there are any
-                std::cerr << "Unkown token \'" << *iter << "\' in " << current.text << " at (" << line << ", " << inline_offset << ")" << std::endl;
+                std::cerr << "Lexer: Unknown character \'" << *iter << "\' in " << current.text << " at (" << line << ", " << inline_offset << ")" << std::endl;
             }
         case '0':
         case '1':

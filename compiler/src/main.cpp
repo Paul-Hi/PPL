@@ -1,5 +1,8 @@
+#include "ast.hpp"
+#include "ast_visitor.hpp"
 #include "command_line_parser.hpp"
 #include "lexer.hpp"
+#include "parser.hpp"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -31,9 +34,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 
 int main(int argc, char** argv)
 {
-    std::cout << "---------------------------" << std::endl;
-    std::cout << "-------- PCompiler --------" << std::endl;
-    std::cout << "---------------------------" << std::endl;
+    std::cout << "----------------------------" << std::endl;
+    std::cout << "------- PPL Compiler -------" << std::endl;
+    std::cout << "----------------------------" << std::endl;
     std::cout << std::endl;
     std::cout << std::endl;
 
@@ -41,20 +44,19 @@ int main(int argc, char** argv)
 
     if (cmd_parser.cmd_option_exists("-h"))
     {
-        std::cout << "---------------------------" << std::endl;
-        std::cout << "------ Compiler Help ------" << std::endl;
-        std::cout << "---------------------------" << std::endl;
+        std::cout << "----------------------------" << std::endl;
+        std::cout << "----------- Help -----------" << std::endl;
+        std::cout << "----------------------------" << std::endl;
         std::cout << std::endl;
-        std::cout << " -i  \"input file name\"   " << std::endl;
-        std::cout << " -o  \"output file name\"  " << std::endl;
-        std::cout << " -pp (bool) pretty print " << std::endl;
+        std::cout << "  -i  \"input file name\"     " << std::endl;
+        std::cout << "  -o  \"output file name\"    " << std::endl;
+        std::cout << "  -pp (bool) pretty print   " << std::endl;
+        std::cout << "  -dot (bool) plot ast  " << std::endl;
         std::cin.get();
         return 0;
     }
-    if (cmd_parser.cmd_option_exists("-pp"))
-    {
-        // Enable Pretty Print
-    }
+    bool dot_ast = cmd_parser.cmd_option_exists("-dot");
+    bool pretty_print = cmd_parser.cmd_option_exists("-pp");
 
     std::string input_file_name  = cmd_parser.get_cmd_option("-i");
     std::string output_file_name = cmd_parser.get_cmd_option("-o");
@@ -75,6 +77,8 @@ int main(int argc, char** argv)
     }
 
     std::cout << "  INPUT: " << input_file_name << "\n  OUTPUT: " << output_file_name << std::endl;
+    std::cout << std::endl;
+    std::cout << std::endl;
 
     std::ifstream file(input_file_name);
     std::stringstream buffer;
@@ -84,45 +88,25 @@ int main(int argc, char** argv)
 
     std::vector<token> tokens = source_lexer.parse(buffer.str());
 
-    int32_t current_line         = 1;
-    int32_t indent               = 0;
-    static bool print_token_type = true;
-    for (token t : tokens)
+    std::cout << std::endl;
+    std::cout << std::endl;
+
+    parser token_parser(tokens);
+
+    unique_ptr<expression> program_node = token_parser.parse();
+
+    std::cout << std::endl;
+    std::cout << std::endl;
+
+    if (dot_ast)
     {
-        if (t.type == token_type::r_brace)
-            indent -= 4;
-        if (t.line > current_line)
-        {
-            std::cout << std::endl;
-            current_line = t.line;
-            for (int32_t i = 0; i < indent; ++i)
-                std::cout << " ";
-        }
-        if (t.type == token_type::comment)
-            std::cout << "//";
-        if (print_token_type)
-        {
-            std::cout << token_type_to_string(t.type);
-            if (t.type == token_type::identifier || t.type == token_type::string_literal || t.type == token_type::integer_literal || t.type == token_type::floating_point_literal ||
-                t.type == token_type::comment)
-                std::cout << " \"" << t.text << "\" ";
-            else
-                std::cout << " ";
-        }
-        else
-        {
-            if (t.type == token_type::string_literal)
-                std::cout << "\"";
-            std::cout << t.text;
-            if (t.type == token_type::string_literal)
-                std::cout << "\"";
-            std::cout << " ";
-        }
-        if (t.type == token_type::l_brace)
-            indent += 4;
+        int32_t out = 0;
+        dot_visitor v("graph.dot");
+        v(*program_node, out);
     }
 
+    std::cout << "Done" << std::endl;
     std::cin.get();
 
-    return 1;
+    return 0;
 }

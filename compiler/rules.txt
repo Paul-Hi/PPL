@@ -1,14 +1,13 @@
 
 // Parser
 
-program = declarations
+program = { declaration }
 
-declarations = { variable_declaration | function_declaration }
+declaration = variable_declaration | function_declaration
 
-variable_declaration = type_name, identifier, { assign, expression }, semicolon
+variable_declaration = type_name, identifier | array_access , [ assign, expression ], semicolon
 
-function_declaration = unit | ( l_parentheses parameter_declarations r_parentheses ), transmutation_arrow,
-                        unit | typename, identifier, block
+function_declaration = function_type_name, identifier, block
 
 parameter_declarations = parameter_declaration, { comma, parameter_declarations }
 
@@ -22,7 +21,7 @@ statement = assign_statement | return_statement | if_statement | while_statement
 
 assign_statement = l_value, assign, expression, semicolon
 
-return_statement = expression, semicolon
+return_statement = return, expression, semicolon
 
 if_statement = keyword_if, l_parentheses, conditional_expression, r_parentheses, block, { keyword_else, block }
 
@@ -71,7 +70,12 @@ access_expression = l_bracket, arithmetic_expression, r_bracket
 
 type_name = type_i32 | type_f32 | type_bool | type_str, { l_bracket, arithmetic_expression , r_bracket }
 
-lvalue = identifier | array_access
+function_type_name = unit | ( l_parentheses parameter_declarations r_parentheses ), transmutation_arrow,
+                        unit | type_name
+
+
+
+l_value = identifier | array_access
 
 arithmetic_factor = ( minus | plus ), ( variable_access | function_call | arithmetic_literal |
                     ( l_parentheses, arithmetic_expression, r_parentheses ) |

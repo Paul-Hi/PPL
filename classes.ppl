@@ -52,5 +52,5 @@ pub:
     foo a_bar2 = bar::new(3, 4, 5);
     bar a_bar3 = bar::new(3, 4, 5);
 
-    return 1;
+    return 0;
 }

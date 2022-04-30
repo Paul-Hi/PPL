@@ -3,12 +3,16 @@ project(compiler)
 set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/lexer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/parser.cpp
 )
 
 set(HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/command_line_parser.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/token.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/lexer.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/parser.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ast.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ast_visitor.hpp
 )
 
 if(WIN32 AND MSVC)

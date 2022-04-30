@@ -2,190 +2,296 @@
 #define TOKEN_HPP
 
 #include <string>
+#include <iostream>
 
-// Unary Operators: ++ -- ! -
-// Binary Operators: + - * / % = < > ! , ; && || == <= >= !=.
+// Unary Operators: ++ -- ! - +
+// Binary Operators: + - * / % = < > , ; && || == <= >= !=.
 // Special Symbols: -> ( ) { } [ ] , ; . : :: ()
 
-enum token_type : uint16_t
-{
-    undefined,
-    identifier,             // type, name or keyword
-    unit,                   // unit/void type
-    integer_literal,        // integer literal z.B. 3
-    floating_point_literal, // floating point literal z.B 9.5
-    boolean_literal,        // boolean literal \in { true, false }
-    string_literal,         // string literal z.B. "Hallo Welt"
-    plus,                   // +
-    increment,              // ++
-    minus,                  // -
-    decrement,              // --
-    star,                   // *
-    slash,                  // /
-    percent,                // %
-    assign,                 // =
-    less_then,              // <
-    greather_then,          // >
-    exclamation_mark,       // !
-    logical_and,            // &&
-    logical_or,             // ||
-    equal,                  // ==
-    less_then_or_equal,     // <=
-    greather_then_or_equal, // >=
-    not_equal,              // !=
-    transmutation_arrow,    // ->
-    l_parentheses,          // (
-    r_parentheses,          // )
-    l_brace,                // {
-    r_brace,                // }
-    l_bracket,              // [
-    r_bracket,              // ]
-    comma,                  // ,
-    semicolon,              // ;
-    colon,                  // :
-    double_colon,           // ::
-    point,                  // .
-    comment,                // comment
-    // keyword tokens
-    type_i32,        // i32
-    type_f32,        // f32
-    type_bool,       // bool
-    type_str,        // str
-    keyword_true,    // true
-    keyword_false,   // false
-    keyword_as,      // as
-    keyword_if,      // if
-    keyword_else,    // else
-    keyword_while,   // while
-    keyword_return,  // return
-    keyword_pub,     // pub
-    keyword_static,  // static
-    keyword_type,    // type
-    keyword_extends, // extends
-    function_dump,   // dump
-};
+#define TOKEN_TYPE_ENUMERATION(op)                                                                                                                                                                     \
+    op(undefined) op(token_identifier) op(unit) op(integer_literal) op(floating_point_literal) op(boolean_literal) op(string_literal) op(plus) op(increment) op(minus) op(decrement) op(star)          \
+        op(slash) op(percent) op(assign) op(less_then) op(greather_then) op(exclamation_mark) op(logical_and) op(logical_or) op(equal) op(less_then_or_equal) op(greather_then_or_equal) op(not_equal) \
+            op(transmutation_arrow) op(l_parentheses) op(r_parentheses) op(l_brace) op(r_brace) op(l_bracket) op(r_bracket) op(comma) op(semicolon) op(colon) op(double_colon) op(point) op(comment)   \
+                op(eof) op(type_i32) op(type_f32) op(type_bool) op(type_str) op(keyword_as) op(keyword_if) op(keyword_else) op(keyword_while) op(keyword_return) op(keyword_pub) op(keyword_static)    \
+                    op(keyword_type) op(keyword_extends) op(function_dump)
 
-static std::string token_type_to_string(token_type type)
+#define op(x) x,
+enum class token_type
 {
-    switch (type)
+    TOKEN_TYPE_ENUMERATION(op)
+};
+#undef op
+
+#define op(x)           \
+    case token_type::x: \
+        return #x;
+static std::string to_string(token_type id_type)
+{
+    switch (id_type)
     {
-    case token_type::undefined:
-        return "undefined";
-    case token_type::identifier:
-        return "identifier";
-    case token_type::unit:
-        return "unit";
-    case token_type::integer_literal:
-        return "integer_literal";
-    case token_type::floating_point_literal:
-        return "floating_point_literal";
-    case token_type::boolean_literal:
-        return "boolean_literal";
-    case token_type::string_literal:
-        return "string_literal";
-    case token_type::plus:
-        return "plus";
-    case token_type::increment:
-        return "increment";
-    case token_type::minus:
-        return "minus";
-    case token_type::decrement:
-        return "decrement";
-    case token_type::star:
-        return "star";
-    case token_type::slash:
-        return "slash";
-    case token_type::percent:
-        return "percent";
-    case token_type::assign:
-        return "assign";
-    case token_type::less_then:
-        return "less_then";
-    case token_type::greather_then:
-        return "greather_then";
-    case token_type::exclamation_mark:
-        return "exclamation_mark";
-    case token_type::logical_and:
-        return "logical_and";
-    case token_type::logical_or:
-        return "logical_or";
-    case token_type::equal:
-        return "equal";
-    case token_type::less_then_or_equal:
-        return "less_then_or_equal";
-    case token_type::greather_then_or_equal:
-        return "greather_then_or_equal";
-    case token_type::not_equal:
-        return "not_equal";
-    case token_type::transmutation_arrow:
-        return "transmutation_arrow";
-    case token_type::l_parentheses:
-        return "l_parentheses";
-    case token_type::r_parentheses:
-        return "r_parentheses";
-    case token_type::l_brace:
-        return "l_brace";
-    case token_type::r_brace:
-        return "r_brace";
-    case token_type::l_bracket:
-        return "l_bracket";
-    case token_type::r_bracket:
-        return "r_bracket";
-    case token_type::comma:
-        return "comma";
-    case token_type::semicolon:
-        return "semicolon";
-    case token_type::colon:
-        return "colon";
-    case token_type::double_colon:
-        return "double_colon";
-    case token_type::point:
-        return "point";
-    case token_type::comment:
-        return "comment";
-    case token_type::type_i32:
-        return "type_i32";
-    case token_type::type_f32:
-        return "type_f32";
-    case token_type::type_bool:
-        return "type_bool";
-    case token_type::type_str:
-        return "type_str";
-    case token_type::keyword_as:
-        return "keyword_as";
-    case token_type::keyword_true:
-        return "keyword_true";
-    case token_type::keyword_false:
-        return "keyword_false";
-    case token_type::keyword_if:
-        return "keyword_if";
-    case token_type::keyword_else:
-        return "keyword_else";
-    case token_type::keyword_while:
-        return "keyword_while";
-    case token_type::keyword_return:
-        return "keyword_return";
-    case token_type::keyword_pub:
-        return "keyword_pub";
-    case token_type::keyword_static:
-        return "keyword_static";
-    case token_type::keyword_type:
-        return "keyword_type";
-    case token_type::keyword_extends:
-        return "keyword_extends";
-    case token_type::function_dump:
-        return "function_dump";
+        TOKEN_TYPE_ENUMERATION(op)
     default:
         return "undefined";
     }
-}
+};
+#undef op
+
+struct source_code_position
+{
+    int32_t line;
+    int32_t inline_offset;
+
+    friend std::ostream& operator<<(std::ostream& os, const source_code_position& position)
+    {
+        os << "[" << position.line << ", " << position.inline_offset << "]";
+        return os;
+    }
+};
 
 struct token
 {
     token_type type = token_type::undefined;
     std::string text;
-    int32_t line          = 0;
-    int32_t inline_offset = 0;
+    source_code_position position = { 0, 0 };
 };
+
+static int32_t prefix_operator_precedence(token_type op)
+{
+    switch (op)
+    {
+    case token_type::plus:
+        return 14;
+    case token_type::minus:
+        return 14;
+    case token_type::exclamation_mark:
+        return 14;
+    case token_type::decrement:
+        return 14;
+    case token_type::increment:
+        return 14;
+    default:
+        return -1;
+    }
+    return -1;
+}
+
+static int32_t postfix_operator_precedence(token_type op)
+{
+    switch (op)
+    {
+    case token_type::increment:
+    case token_type::decrement:
+    case token_type::l_bracket:
+    case token_type::l_parentheses:
+    case token_type::unit:
+        return 15;
+    default:
+        return -1;
+    }
+    return -1;
+}
+
+static int32_t infix_operator_precedence(token_type op)
+{
+    switch (op)
+    {
+    case token_type::comma:
+        return 0;
+    case token_type::assign:
+        return 1;
+    case token_type::logical_or:
+        return 2;
+    case token_type::logical_and:
+        return 3;
+    case token_type::equal:
+    case token_type::not_equal:
+        return 6;
+    case token_type::less_then:
+    case token_type::greather_then:
+    case token_type::less_then_or_equal:
+    case token_type::greather_then_or_equal:
+        return 7;
+    case token_type::plus:
+    case token_type::minus:
+        return 11;
+    case token_type::star:
+    case token_type::slash:
+    case token_type::percent:
+        return 12;
+    case token_type::point:
+        return 15;
+    case token_type::double_colon:
+        return 16;
+    default:
+        return -1;
+    }
+    return -1;
+}
+
+enum associativity
+{
+    LR = 0,
+    RL = 1,
+};
+
+static int32_t infix_operator_associativity(token_type op)
+{
+    switch (op)
+    {
+    case token_type::plus:
+        return LR;
+    case token_type::minus:
+        return LR;
+    case token_type::star:
+        return LR;
+    case token_type::slash:
+        return LR;
+    case token_type::percent:
+        return LR;
+    case token_type::assign:
+        return RL;
+    case token_type::less_then:
+        return LR;
+    case token_type::greather_then:
+        return LR;
+    case token_type::logical_and:
+        return LR;
+    case token_type::logical_or:
+        return LR;
+    case token_type::equal:
+        return LR;
+    case token_type::less_then_or_equal:
+        return LR;
+    case token_type::greather_then_or_equal:
+        return LR;
+    case token_type::not_equal:
+        return LR;
+    case token_type::comma:
+        return LR;
+    case token_type::double_colon:
+        return LR;
+    case token_type::point:
+        return LR;
+    default:
+        return -1;
+    }
+    return -1;
+}
+
+/*
+static int32_t operator_precedence(token_type op)
+{
+    switch (op)
+    {
+    case token_type::undefined:
+        return 0;
+    case token_type::token_identifier:
+        return 0;
+    case token_type::unit:
+        return 0;
+    case token_type::integer_literal:
+        return 0;
+    case token_type::floating_point_literal:
+        return 0;
+    case token_type::boolean_literal:
+        return 0;
+    case token_type::string_literal:
+        return 0;
+    case token_type::plus:
+        return 0;
+    case token_type::increment:
+        return 0;
+    case token_type::minus:
+        return 0;
+    case token_type::decrement:
+        return 0;
+    case token_type::star:
+        return 0;
+    case token_type::slash:
+        return 0;
+    case token_type::percent:
+        return 0;
+    case token_type::assign:
+        return 0;
+    case token_type::less_then:
+        return 0;
+    case token_type::greather_then:
+        return 0;
+    case token_type::exclamation_mark:
+        return 0;
+    case token_type::logical_and:
+        return 0;
+    case token_type::logical_or:
+        return 0;
+    case token_type::equal:
+        return 0;
+    case token_type::less_then_or_equal:
+        return 0;
+    case token_type::greather_then_or_equal:
+        return 0;
+    case token_type::not_equal:
+        return 0;
+    case token_type::transmutation_arrow:
+        return 0;
+    case token_type::l_parentheses:
+        return 0;
+    case token_type::r_parentheses:
+        return 0;
+    case token_type::l_brace:
+        return 0;
+    case token_type::r_brace:
+        return 0;
+    case token_type::l_bracket:
+        return 0;
+    case token_type::r_bracket:
+        return 0;
+    case token_type::comma:
+        return 0;
+    case token_type::semicolon:
+        return 0;
+    case token_type::colon:
+        return 0;
+    case token_type::double_colon:
+        return 0;
+    case token_type::point:
+        return 0;
+    case token_type::comment:
+        return 0;
+    case token_type::eof:
+        return 0;
+    case token_type::type_i32:
+        return 0;
+    case token_type::type_f32:
+        return 0;
+    case token_type::type_bool:
+        return 0;
+    case token_type::type_str:
+        return 0;
+    case token_type::keyword_as:
+        return 0;
+    case token_type::keyword_if:
+        return 0;
+    case token_type::keyword_else:
+        return 0;
+    case token_type::keyword_while:
+        return 0;
+    case token_type::keyword_return:
+        return 0;
+    case token_type::keyword_pub:
+        return 0;
+    case token_type::keyword_static:
+        return 0;
+    case token_type::keyword_type:
+        return 0;
+    case token_type::keyword_extends:
+        return 0;
+    case token_type::function_dump:
+        return 0;
+
+    default:
+        break;
+    }
+}
+*/
 
 #endif TOKEN_HPP
