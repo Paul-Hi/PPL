@@ -152,11 +152,6 @@ std::vector<token> lexer::parse(const std::string& source)
             begin_token(current, line, inline_offset);
             current.type = token_type::plus;
             current.text.append(1, *iter);
-            if (*(iter + 1) == '+') // ++ check
-            {
-                current.type = token_type::increment;
-                current.text.append(1, *(++iter));
-            }
             end_token(current, token_list);
             break;
         case '-':
@@ -164,12 +159,7 @@ std::vector<token> lexer::parse(const std::string& source)
             begin_token(current, line, inline_offset);
             current.type = token_type::minus;
             current.text.append(1, *iter);
-            if (*(iter + 1) == '-') // -- check
-            {
-                current.type = token_type::decrement;
-                current.text.append(1, *(++iter));
-            }
-            else if (*(iter + 1) == '>') // -> check
+            if (*(iter + 1) == '>') // -> check
             {
                 current.type = token_type::transmutation_arrow;
                 current.text.append(1, *(++iter));

@@ -8,12 +8,12 @@
 // Binary Operators: + - * / % = < > , ; && || == <= >= !=.
 // Special Symbols: -> ( ) { } [ ] , ; . : :: ()
 
-#define TOKEN_TYPE_ENUMERATION(op)                                                                                                                                                                     \
-    op(undefined) op(token_identifier) op(unit) op(integer_literal) op(floating_point_literal) op(boolean_literal) op(string_literal) op(plus) op(increment) op(minus) op(decrement) op(star)          \
-        op(slash) op(percent) op(assign) op(less_then) op(greather_then) op(exclamation_mark) op(logical_and) op(logical_or) op(equal) op(less_then_or_equal) op(greather_then_or_equal) op(not_equal) \
-            op(transmutation_arrow) op(l_parentheses) op(r_parentheses) op(l_brace) op(r_brace) op(l_bracket) op(r_bracket) op(comma) op(semicolon) op(colon) op(double_colon) op(point) op(comment)   \
-                op(eof) op(type_i32) op(type_f32) op(type_bool) op(type_str) op(keyword_as) op(keyword_if) op(keyword_else) op(keyword_while) op(keyword_return) op(keyword_pub) op(keyword_static)    \
-                    op(keyword_type) op(keyword_extends) op(function_dump)
+#define TOKEN_TYPE_ENUMERATION(op)                                                                                                                                                                 \
+    op(undefined) op(token_identifier) op(unit) op(integer_literal) op(floating_point_literal) op(boolean_literal) op(string_literal) op(plus) op(minus) op(star) op(slash) op(percent) op(assign) \
+        op(less_then) op(greather_then) op(exclamation_mark) op(logical_and) op(logical_or) op(equal) op(less_then_or_equal) op(greather_then_or_equal) op(not_equal) op(transmutation_arrow)      \
+            op(l_parentheses) op(r_parentheses) op(l_brace) op(r_brace) op(l_bracket) op(r_bracket) op(comma) op(semicolon) op(colon) op(double_colon) op(point) op(comment) op(eof) op(type_i32)  \
+                op(type_f32) op(type_bool) op(type_str) op(keyword_as) op(keyword_if) op(keyword_else) op(keyword_while) op(keyword_return) op(keyword_pub) op(keyword_static) op(keyword_type)    \
+                    op(keyword_extends) op(function_dump)
 
 #define op(x) x,
 enum class token_type
@@ -65,10 +65,6 @@ static int32_t prefix_operator_precedence(token_type op)
         return 14;
     case token_type::exclamation_mark:
         return 14;
-    case token_type::decrement:
-        return 14;
-    case token_type::increment:
-        return 14;
     default:
         return -1;
     }
@@ -79,8 +75,6 @@ static int32_t postfix_operator_precedence(token_type op)
 {
     switch (op)
     {
-    case token_type::increment:
-    case token_type::decrement:
     case token_type::l_bracket:
     case token_type::l_parentheses:
     case token_type::unit:
@@ -186,11 +180,7 @@ static int32_t operator_precedence(token_type op)
         return 0;
     case token_type::plus:
         return 0;
-    case token_type::increment:
-        return 0;
     case token_type::minus:
-        return 0;
-    case token_type::decrement:
         return 0;
     case token_type::star:
         return 0;

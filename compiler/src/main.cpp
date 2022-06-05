@@ -105,6 +105,12 @@ int main(int argc, char** argv)
         v(*program_node, out);
     }
 
+    if (pretty_print)
+    {
+        pretty_printer v("pretty.ppl");
+        v(*program_node, "");
+    }
+
     std::cout << "Done" << std::endl;
     std::cin.get();
 

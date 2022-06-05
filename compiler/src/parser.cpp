@@ -354,8 +354,6 @@ unique_ptr<expression> parser::parse_block()
         case token_type::keyword_return:
         case token_type::function_dump:
         case token_type::token_identifier:
-        case token_type::increment:
-        case token_type::decrement:
         {
             // possible expression
             unique_ptr<expression> expr = parse_statement();
@@ -409,7 +407,7 @@ unique_ptr<expression> parser::parse_statement()
     case token_type::keyword_if:
     {
         // if statement
-        expr->expr_type = expression_type::land;
+        expr->expr_type = expression_type::branch;
         pop_token();
         unique_ptr<expression> condition = parse_expression_pratt();
         if (condition)
@@ -422,16 +420,20 @@ unique_ptr<expression> parser::parse_statement()
         if (peek_token().type == token_type::keyword_else)
         {
             pop_token();
-            unique_ptr<expression> if_then = std::move(expr->deep_copy());
-            expr->expr_type                = expression_type::lor;
-            expr->expressions.clear();
-            expr->expressions.push_back(std::move(if_then));
-            unique_ptr<expression> else_block = parse_block();
-            if (else_block)
-                expr->expressions.push_back(std::move(else_block));
-            expect_token(token_type::r_brace);
+            if (peek_token().type == token_type::l_brace)
+            {
+                unique_ptr<expression> else_block = parse_block();
+                if (else_block)
+                    expr->expressions.push_back(std::move(else_block));
+                expect_token(token_type::r_brace);
+            }
+            else
+            {
+                unique_ptr<expression> else_if = parse_statement();
+                if (else_if)
+                    expr->expressions.push_back(std::move(else_if));
+            }
         }
-
         break;
     }
     case token_type::keyword_while:
@@ -460,15 +462,6 @@ unique_ptr<expression> parser::parse_statement()
         expect_token(token_type::semicolon);
         break;
     }
-    case token_type::increment:
-    case token_type::decrement:
-    {
-        unique_ptr<expression> prefix_op = parse_expression_pratt();
-        if (prefix_op)
-            expr = std::move(prefix_op);
-        expect_token(token_type::semicolon);
-        break;
-    }
     default:
         create_error(first_token.position, "Unexpected token " + to_string(first_token.type));
         return std::move(expr);
@@ -491,15 +484,9 @@ unique_ptr<expression> parser::parse_expression_pratt(int32_t min_precedence)
         unique_ptr<expression> rhs = parse_expression_pratt(next_min_precedence);
 
         unique_ptr<expression> operation = std::make_unique<expression>(t.position, operator_token_type_to_expression_type(t.type));
-        if (t.type == token_type::increment || t.type == token_type::decrement)
-        {
-            operation = std::move(add_prefix_op_expansion(operation->source_position, t.type, rhs));
-        }
-        else
-        {
-            operation->expressions.push_back(std::move(lhs));
-            operation->expressions.push_back(std::move(rhs));
-        }
+
+        operation->expressions.push_back(std::move(lhs));
+        operation->expressions.push_back(std::move(rhs));
 
         lhs = std::move(operation);
     }
@@ -526,11 +513,7 @@ unique_ptr<expression> parser::parse_expression_pratt(int32_t min_precedence)
             pop_token();
 
             unique_ptr<expression> operation = std::make_unique<expression>(t.position, operator_token_type_to_expression_type(t.type));
-            if (t.type == token_type::increment || t.type == token_type::decrement)
-            {
-                operation = std::move(add_postfix_op_expansion(operation->source_position, t.type, lhs));
-            }
-            else if (t.type == token_type::l_parentheses)
+            if (t.type == token_type::l_parentheses)
             {
                 // function call
                 unique_ptr<expression> rhs = parse_expression_pratt(0);
@@ -623,103 +606,4 @@ unique_ptr<expression> parser::parse_atom()
 void parser::create_error(source_code_position& position, const std::string& msg)
 {
     m_errors.push_back(parser_error{ position, msg });
-}
-
-unique_ptr<expression> parser::add_prefix_op_expansion(source_code_position& position, token_type op, unique_ptr<expression>& rhs)
-{
-    expression_type tp = (op == token_type::increment) ? expression_type::add : expression_type::sub;
-    bool pure          = rhs->is_pure();
-    if (pure)
-    {
-        unique_ptr<expression> assgn     = std::make_unique<expression>(position, expression_type::assign);
-        unique_ptr<expression> operation = std::make_unique<expression>(position, tp);
-        // rhs = rhs + 1
-        operation->expressions.push_back(std::move(rhs->deep_copy()));
-        operation->expressions.push_back(std::move(std::make_unique<integer_literal>(position, 1)));
-        assgn->expressions.push_back(std::move(rhs));
-        assgn->expressions.push_back(std::move(operation));
-        return std::move(assgn);
-    }
-    else
-    {
-        unique_ptr<identifier> temp      = ctx.declare_temp(position);
-        unique_ptr<expression> assgn0    = std::make_unique<expression>(position, expression_type::assign);
-        unique_ptr<expression> assgn1    = std::make_unique<expression>(position, expression_type::assign);
-        unique_ptr<expression> address   = std::make_unique<expression>(position, expression_type::address_of);
-        unique_ptr<expression> deref_op  = std::make_unique<expression>(position, expression_type::deref);
-        unique_ptr<expression> operation = std::make_unique<expression>(position, tp);
-        unique_ptr<expression> comp      = std::make_unique<expression>(position, expression_type::compound);
-        // temp = &x
-        assgn0->expressions.push_back(std::move(temp->deep_copy()));
-        address->expressions.push_back(std::move(rhs));
-        assgn0->expressions.push_back(std::move(address));
-        // *temp = *temp + 1
-        deref_op->expressions.push_back(std::move(temp));
-        operation->expressions.push_back(std::move(deref_op->deep_copy()));
-        operation->expressions.push_back(std::move(std::move(std::make_unique<integer_literal>(position, 1))));
-        assgn1->expressions.push_back(std::move(deref_op));
-        assgn1->expressions.push_back(std::move(operation));
-        // (temp = &x, *temp = *temp + 1)
-        comp->expressions.push_back(std::move(assgn0));
-        comp->expressions.push_back(std::move(assgn1));
-        return std::move(comp);
-    }
-}
-
-unique_ptr<expression> parser::add_postfix_op_expansion(source_code_position& position, token_type op, unique_ptr<expression>& rhs)
-{
-    expression_type tp = (op == token_type::increment) ? expression_type::add : expression_type::sub;
-    bool pure          = rhs->is_pure();
-    if (pure)
-    {
-        unique_ptr<identifier> temp      = ctx.declare_temp(position);
-        unique_ptr<expression> assgn0    = std::make_unique<expression>(position, expression_type::assign);
-        unique_ptr<expression> assgn1    = std::make_unique<expression>(position, expression_type::assign);
-        unique_ptr<expression> operation = std::make_unique<expression>(position, tp);
-        unique_ptr<expression> comp      = std::make_unique<expression>(position, expression_type::compound);
-        // temp = x
-        assgn0->expressions.push_back(std::move(temp->deep_copy()));
-        assgn0->expressions.push_back(std::move(rhs->deep_copy()));
-        // x = x + 1
-        operation->expressions.push_back(std::move(rhs->deep_copy()));
-        operation->expressions.push_back(std::move(std::move(std::make_unique<integer_literal>(position, 1))));
-        assgn1->expressions.push_back(std::move(rhs));
-        assgn1->expressions.push_back(std::move(operation));
-        // (temp = x, x = x +1, temp)
-        comp->expressions.push_back(std::move(assgn0));
-        comp->expressions.push_back(std::move(assgn1));
-        comp->expressions.push_back(std::move(temp));
-        return std::move(comp);
-    }
-    else
-    {
-        unique_ptr<identifier> temp0     = ctx.declare_temp(position);
-        unique_ptr<identifier> temp1     = ctx.declare_temp(position);
-        unique_ptr<expression> assgn0    = std::make_unique<expression>(position, expression_type::assign);
-        unique_ptr<expression> assgn1    = std::make_unique<expression>(position, expression_type::assign);
-        unique_ptr<expression> assgn2    = std::make_unique<expression>(position, expression_type::assign);
-        unique_ptr<expression> address   = std::make_unique<expression>(position, expression_type::address_of);
-        unique_ptr<expression> deref_op  = std::make_unique<expression>(position, expression_type::deref);
-        unique_ptr<expression> operation = std::make_unique<expression>(position, tp);
-        unique_ptr<expression> comp      = std::make_unique<expression>(position, expression_type::compound);
-        // temp1 = &rhs
-        assgn0->expressions.push_back(std::move(temp1->deep_copy()));
-        address->expressions.push_back(std::move(rhs));
-        assgn0->expressions.push_back(std::move(address));
-        // temp0 = *temp1
-        assgn1->expressions.push_back(std::move(temp0->deep_copy()));
-        deref_op->expressions.push_back(std::move(temp1));
-        assgn1->expressions.push_back(std::move(deref_op->deep_copy()));
-        // *temp1 = *temp1 + 1
-        assgn2->expressions.push_back(std::move(deref_op->deep_copy()));
-        operation->expressions.push_back(std::move(deref_op));
-        operation->expressions.push_back(std::move(std::move(std::make_unique<integer_literal>(position, 1))));
-        assgn2->expressions.push_back(std::move(operation));
-        // (temp1 = &rhs, temp0 = *temp1, *temp1 = *temp1 + 1, temp0)
-        comp->expressions.push_back(std::move(assgn0));
-        comp->expressions.push_back(std::move(assgn1));
-        comp->expressions.push_back(std::move(assgn2));
-        comp->expressions.push_back(std::move(temp0));
-        return std::move(comp);
-    }
 }
