@@ -1,3 +1,9 @@
+//! \file      command_line_parser.hpp
+//! \author    Paul Himmler
+//! \version   1.0
+//! \date      2022
+//! \copyright Apache License 2.0
+
 #ifndef COMMAND_LINE_PARSER_HPP
 #define COMMAND_LINE_PARSER_HPP
 

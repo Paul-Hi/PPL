@@ -1,3 +1,9 @@
+//! \file      main.hpp
+//! \author    Paul Himmler
+//! \version   1.0
+//! \date      2022
+//! \copyright Apache License 2.0
+
 #include "ast.hpp"
 #include "ast_visitor.hpp"
 #include "command_line_parser.hpp"

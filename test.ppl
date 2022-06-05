@@ -1,3 +1,10 @@
+//! \file      test.ppl
+//! \author    Paul Himmler
+//! \version   1.0
+//! \date      2022
+//! \copyright Apache License 2.0
+
+
 // (i32 n) -> i32 factorial
 // {
 //     i32 fact = 1;

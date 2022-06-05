@@ -1,3 +1,9 @@
+//! \file      parser.hpp
+//! \author    Paul Himmler
+//! \version   1.0
+//! \date      2022
+//! \copyright Apache License 2.0
+
 #ifndef PARSER_HPP
 #define PARSER_HPP
 

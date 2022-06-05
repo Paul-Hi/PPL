@@ -1,3 +1,9 @@
+//! \file      basic.ppl
+//! \author    Paul Himmler
+//! \version   1.0
+//! \date      2022
+//! \copyright Apache License 2.0
+
 // Inverts the given number if it is > 0 and divisible by 2
 (i32 num) -> i32 invert_mod2
 {
