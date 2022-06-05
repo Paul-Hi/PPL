@@ -6,6 +6,8 @@ A small compiler project in C++ for a custom fantasy language 'PPL'.
 
 * Create every part of the compiler without using generators for code (i.e. lexer, parser) - minimal dependencies
 * Create Lexer, Parser, AST representation, custom IR language, code generation for 'PPL'
+* Extend 'PPL' language with new features (i.e. classes)
+* Provide more information regarding 'PPL' (rules, syntax, ...)
 * Add optimizations for learning purposes
 
 ## Existing Features
